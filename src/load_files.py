@@ -1,16 +1,34 @@
 import numpy as np
 import os
-
+import pandas as pd 
 def load_blade_geometry(filepath="./inputs/IEA-15-240-RWT/IEA-15-240-RWT_AeroDyn15_blade.dat"):
     """Load blade geometry from AeroDyn15 blade definition file."""
     with open(filepath, 'r') as f:
         lines = f.readlines()
+        index = next(i for i, line in enumerate(lines) if "BlSpn" in line)
+
+        header_line = lines[index].strip()  # Get the second line (index 1)
+        names = header_line.split()  # Split by whitespace
+
+        units = lines[index+1].strip()
+        unit = units.split()
 
     # Find where numerical data starts
-    start_index = next(i for i, line in enumerate(lines) if "BlSpn" in line) + 2
+    start_index = next(i for i, line in enumerate(lines) if "(m)" in line) 
+    data = np.loadtxt(filepath, skiprows=start_index+1)
+
+    # Create DataFrame for the data
+    opt_data = pd.DataFrame(data, columns=names)
+    # Optionally: Create a dictionary for the units
+    units_opt = {names[i]: unit[i] for i in range(len(names))}
+
+
+    
+
+
 
     # Read numerical data
-    data = np.loadtxt(filepath, skiprows=start_index)
+
 
     # Extract relevant columns
     r = data[:, 0]      # Spanwise position (m)
@@ -18,7 +36,7 @@ def load_blade_geometry(filepath="./inputs/IEA-15-240-RWT/IEA-15-240-RWT_AeroDyn
     chord = data[:, 5]  # Chord length (m)
     af_id = data[:, 6].astype(int)  # Airfoil ID (integer)
 
-    return {'r': r, 'chord': chord, 'beta': beta, 'af_id': [f"{af:02d}" for af in af_id]}
+    return opt_data, units_opt
 
 def load_airfoil_data(directory="./inputs/IEA-15-240-RWT/Airfoils"):
     """Load airfoil polars and coordinates from the airfoil directory."""
@@ -43,7 +61,7 @@ def load_airfoil_data(directory="./inputs/IEA-15-240-RWT/Airfoils"):
         x_coords, y_coords = load_airfoil_coordinates(coords_file)
 
         # Store in dictionary
-        airfoil_data[af_key] = {'alpha': alpha, 'Cl': Cl, 'Cd': Cd, 'x_coords': x_coords, 'y_coords': y_coords}
+        airfoil_data[af_key] = {'alpha_deg': alpha, 'Cl': Cl, 'Cd': Cd, 'x_coords': x_coords, 'y_coords': y_coords}
 
     return airfoil_data
 
@@ -82,7 +100,7 @@ def load_operational_data(filepath="./inputs/IEA-15-240-RWT/IEA_15MW_RWT_Onshore
     
 
     # Store in dictionary
-    opt_data = {'wind_speed': wind_speed, 'pitch_deg': pitch_deg, 'rot_speed_rpm': rot_speed_rpm, 'aero_power': aero_power, 'aero_thrust': aero_thrust}
+    opt_data = {'wind_speed_ms': wind_speed, 'pitch_deg': pitch_deg, 'rot_speed_rpm': rot_speed_rpm, 'aero_power_kw': aero_power, 'aero_thrust_kw': aero_thrust}
 
                         
     return opt_data
