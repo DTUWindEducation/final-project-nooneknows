@@ -68,19 +68,21 @@ def load_airfoil_coordinates(file_path):
 
 def load_operational_data(filepath="./inputs/IEA-15-240-RWT/IEA_15MW_RWT_Onshore.opt"):
     """Load operational data, such as wind speed, omega, and theta_p."""  
-    operational_data = {'V0': [], 'omega': {}, 'theta_p': {}}
+    # operational_data = {'V0': [], 'omega': {}, 'theta_p': {}}
+
     with open(filepath, 'r') as f:
         lines = f.readlines()
 
-    # Read the file using pandas, assuming it's space-separated
-    data = pd.read_csv(filepath, delim_whitespace=True, header=None)
+    # Find where data starts
+    start_index = next(i for i, line in enumerate(lines) if "wind speed [m/s]" in line.lower())+1
+    operational_data = np.loadtxt(filepath, skiprows=start_index)
 
-    # Define column names based on the provided data
-    data.columns = ['wind_speed', 'pitch', 'rot_speed', 'aero_power', 'aero_thrust']
+    wind_speed, pitch_deg, rot_speed_rpm, aero_power, aero_thrust = operational_data[:, 0], operational_data[:, 1], operational_data[:, 2] ,operational_data[:,3], operational_data[:,4]
 
-    # Display the first few rows of the data
-    print(data)
+    
+
+    # Store in dictionary
+    opt_data = {'wind_speed': wind_speed, 'pitch_deg': pitch_deg, 'rot_speed_rpm': rot_speed_rpm, 'aero_power': aero_power, 'aero_thrust': aero_thrust}
+
                         
-
-
-    return operational_data
+    return opt_data

@@ -1,27 +1,43 @@
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [tool.poetry]
-name = "wind-turbine-bem"
+name = "Wind_turbine_modeling"
 version = "0.1.0"
-description = "A Python package for Wind Turbine BEM (Blade Element Momentum) Theory."
-authors = ["Arianna, Beatrice, Giovanni"]
+description = "A short description of your project"
+authors = ["Your Name <your.email@example.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "wind_turbine_bem"}]
+homepage = "https://yourprojecthomepage.com"
+repository = "https://github.com/yourusername/your_final_project"
+documentation = "https://yourprojectdocs.com"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-numpy = "^1.21"
-matplotlib = "^3.4"
-pytest = "^6.2"
-pytest-cov = "^2.12"
+# Add any other dependencies your project may need
+# e.g. requests = "^2.25.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2"
-pylint = "^2.9"
-coverage = "^5.5"
+# Add test and development dependencies here
+# e.g. pytest = "^6.2.5"
 
 [tool.poetry.scripts]
-main = "examples.main:main"
+# Add entry points for scripts if applicable
+# e.g. "main = 'your_final_project.examples.main:run'"
+
+[tool.black]
+line-length = 88
+
+[tool.flake8]
+max-line-length = 88
+exclude = [
+    ".git", 
+    "inputs/data_files_we_provide", 
+    "outputs/data_files_you_generate", 
+    "tests/"
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
