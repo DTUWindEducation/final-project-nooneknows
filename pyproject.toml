@@ -1,46 +1,22 @@
 [tool.poetry]
 name = "Wind_turbine_modeling"
 version = "0.1.0"
-description = "A short description of your project"
-authors = ["Your Name <your.email@example.com>"]
-license = "MIT"
-readme = "README.md"
-homepage = "https://yourprojecthomepage.com"
-repository = "https://github.com/yourusername/your_final_project"
-documentation = "https://yourprojectdocs.com"
-
-[tool.poetry.dependencies]
-python = "^3.8"
-# Add any other dependencies your project may need
-# e.g. requests = "^2.25.1"
-
-[tool.poetry.dev-dependencies]
-# Add test and development dependencies here
-# e.g. pytest = "^6.2.5"
-
-[tool.poetry.scripts]
-# Add entry points for scripts if applicable
-# e.g. "main = 'your_final_project.examples.main:run'"
-
-[tool.black]
-line-length = 88
-
-[tool.flake8]
-max-line-length = 88
-exclude = [
-    ".git", 
-    "inputs/data_files_we_provide", 
-    "outputs/data_files_you_generate", 
-    "tests/"
+description = "With the use of BEM (Blade Element Momentum) a wind turbine is going to be modelled and tested"
+authors = [
+    { name = "Arianna", email = "s23121@dtu.dk" },
+    { name = "Giovanni", email = "s240109@dtu.dk" },
+    { name = "Beatrice", email = "s232961@dtu.dk" }
 ]
+license = "DTU"
+readme = "README.md"
+repository = "https://github.com/DTUWindEducation/final-project-nooneknows.git"
+documentation = "https://github.com/DTUWindEducation/46120-PiWE/blob/main/week08_final_project_intro/wind_turbine_modeling/README.md"
 
-[tool.coverage.run]
-branch = true
-source = ["src"]
-
-[tool.coverage.report]
-show_missing = true
-skip_covered = true
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "scipy"
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
