@@ -18,6 +18,28 @@ class BEMSolver:
     def compute_tsr(self, wind_speed, rot_speed_rpm):
         omega = (rot_speed_rpm * 2 * np.pi) / 60
         return omega * self.R / wind_speed
+    
+    def compute_aero_coeff(radius,alpha,alpha_data,Cl_data,Cd_data):
+        Cl = np.interp(alpha, alpha_data, Cl_data)
+        Cd = np.interp(alpha, alpha_data, Cd_data)
+        return Cl, Cd
+    
+    def compute_induction(r, wind_speed, pitch_angle, omega, solidity, beta_r, alpha_data,Cl_data,Cd_data):
+        a, a_prime = 0, 0
+        for _ in range(100):
+            phi = np.arctan((1-a) * wind_speed / ((1+a_prime) * omega * r+ 1e-6))
+            alpha = np.degrees(phi) - (pitch_angle + np.rad2deg(beta_r))
+            Cl, Cd = BEMSolver.compute_aero_coeff(r,alpha,alpha_data,Cl_data,Cd_data)
+            Cn = Cl * np.cos(phi) + Cd * np.sin(phi)
+            Ct = Cl * np.sin(phi) - Cd * np.cos(phi)
+            a_new = 1 / (4 * np.sin(phi)**2 / (solidity * Cn) + 1)
+            a_prime_new = 1 / (4 * np.sin(phi) * np.cos(phi) / (solidity * Ct) - 1)
+            if np.abs(a - a_new) < 1e-4 and np.abs(a_prime - a_prime_new) < 1e-4:
+                break
+            a, a_prime = a_new, a_prime_new
+        return a_new, a_prime_new
+
+        
 
     def solve_bem(self, wind_speed, pitch_angle, rot_speed_rpm):
         omega = (rot_speed_rpm * 2 * np.pi) / 60
@@ -35,21 +57,9 @@ class BEMSolver:
             Cd_data = self.airfoil_data[airfoil_id]['Cd']
             solidity = (c_r * self.B) / (2 * np.pi * r+ 1e-6)
             a, a_prime = 0, 0
-            for _ in range(100):
-                phi = np.arctan((1-a) * wind_speed / ((1+a_prime) * omega * r+ 1e-6))
-                alpha = np.degrees(phi) - (pitch_angle + np.rad2deg(beta_r))
-                Cl = np.interp(alpha, alpha_data, Cl_data)
-                lift_coeff.append(Cl)
-                Cd = np.interp(alpha, alpha_data, Cd_data)
-                drag_coeff.append(Cd)
-                Cn = Cl * np.cos(phi) + Cd * np.sin(phi)
-                Ct = Cl * np.sin(phi) - Cd * np.cos(phi)
-                a_new = 1 / (4 * np.sin(phi)**2 / (solidity * Cn) + 1)
-                a_prime_new = 1 / (4 * np.sin(phi) * np.cos(phi) / (solidity * Ct) - 1)
-                if np.abs(a - a_new) < 1e-4 and np.abs(a_prime - a_prime_new) < 1e-4:
-                    break
-                a, a_prime = a_new, a_prime_new
-                induction_factors.append((a, a_prime))  # Store induction factors for each span
+            
+            a, a_prime = BEMSolver.compute_induction(r, wind_speed, pitch_angle, omega, solidity, beta_r, alpha_data,Cl_data,Cd_data)
+            induction_factors.append((a, a_prime))  # Store induction factors for each span
             dT = 4 * np.pi * r * self.rho * wind_speed**2 * a * (1-a) * (self.R/len(self.blade_data))
             dM = 4 * np.pi * r**3 * self.rho * wind_speed * omega * a_prime * (1-a) * (self.R/len(self.blade_data))
             thrust += dT
