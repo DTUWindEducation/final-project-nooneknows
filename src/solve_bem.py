@@ -19,17 +19,31 @@ class BEMSolver:
         omega = (rot_speed_rpm * 2 * np.pi) / 60
         return omega * self.R / wind_speed
     
-    def compute_aero_coeff(radius,alpha,alpha_data,Cl_data,Cd_data):
+    # 3. Lift and drag coefficient as function of r and alpha
+    def compute_aero_coeff(self, r, alpha):
+        # Find the closest index in blade_data for the given span position r
+        idx = (np.abs(self.blade_data['BlSpn'] - r)).argmin()
+        
+        # Lookup corresponding airfoil ID and get data
+        airfoil_id = str(int(self.blade_data['BlAFID'][idx]) - 1).zfill(2)
+        alpha_data = self.airfoil_data[airfoil_id]['alpha_deg']
+        Cl_data = self.airfoil_data[airfoil_id]['Cl']
+        Cd_data = self.airfoil_data[airfoil_id]['Cd']
+        
+        # Interpolate aerodynamic coefficients
         Cl = np.interp(alpha, alpha_data, Cl_data)
         Cd = np.interp(alpha, alpha_data, Cd_data)
         return Cl, Cd
+
     
-    def compute_induction(r, wind_speed, pitch_angle, omega, solidity, beta_r, alpha_data,Cl_data,Cd_data):
+    # 4. Compute a and a' as function of r, V0, θp, ω
+    def compute_induction(self, r, V0, theta_p, omega, c_r, beta_r, airfoil_id):
         a, a_prime = 0, 0
+        solidity = (c_r * self.B) / (2 * np.pi * r + 1e-6)
         for _ in range(100):
-            phi = np.arctan((1-a) * wind_speed / ((1+a_prime) * omega * r+ 1e-6))
-            alpha = np.degrees(phi) - (pitch_angle + np.rad2deg(beta_r))
-            Cl, Cd = BEMSolver.compute_aero_coeff(r,alpha,alpha_data,Cl_data,Cd_data)
+            phi = np.arctan((1 - a) * V0 / ((1 + a_prime) * omega * r + 1e-6))
+            alpha = np.degrees(phi) - (theta_p + np.rad2deg(beta_r))
+            Cl, Cd = self.compute_aero_coeff(r, alpha)
             Cn = Cl * np.cos(phi) + Cd * np.sin(phi)
             Ct = Cl * np.sin(phi) - Cd * np.cos(phi)
             a_new = 1 / (4 * np.sin(phi)**2 / (solidity * Cn) + 1)
@@ -41,38 +55,30 @@ class BEMSolver:
 
         
 
-    def solve_bem(self, wind_speed, pitch_angle, rot_speed_rpm):
+     # 5. Compute T, M, P as function of V0, θp, ω
+    def solve_bem(self, V0, theta_p, rot_speed_rpm):
         omega = (rot_speed_rpm * 2 * np.pi) / 60
         thrust, torque = 0, 0
-        induction_factors = []  # store induction factors (a, a') as a 
-        lift_coeff = []
-        drag_coeff = []
-        rated_power = 15678.725250*1e3 # To store rated power
+        rated_power = 15678.725250 * 1e3
         for i, r in enumerate(self.blade_data['BlSpn']):
             c_r = self.blade_data['BlChord'][i]
             beta_r = np.radians(self.blade_data['BlTwist'][i])
             airfoil_id = str(int(self.blade_data['BlAFID'][i]) - 1).zfill(2)
-            alpha_data = self.airfoil_data[airfoil_id]['alpha_deg']
-            Cl_data = self.airfoil_data[airfoil_id]['Cl']
-            Cd_data = self.airfoil_data[airfoil_id]['Cd']
-            solidity = (c_r * self.B) / (2 * np.pi * r+ 1e-6)
-            a, a_prime = 0, 0
-            
-            a, a_prime = BEMSolver.compute_induction(r, wind_speed, pitch_angle, omega, solidity, beta_r, alpha_data,Cl_data,Cd_data)
-            induction_factors.append((a, a_prime))  # Store induction factors for each span
-            dT = 4 * np.pi * r * self.rho * wind_speed**2 * a * (1-a) * (self.R/len(self.blade_data))
-            dM = 4 * np.pi * r**3 * self.rho * wind_speed * omega * a_prime * (1-a) * (self.R/len(self.blade_data))
+            a, a_prime = self.compute_induction(r, V0, theta_p, omega, c_r, beta_r, airfoil_id)
+            dr = self.R / len(self.blade_data)
+            dT = 4 * np.pi * r * self.rho * V0**2 * a * (1 - a) * dr
+            dM = 4 * np.pi * r**3 * self.rho * V0 * omega * a_prime * (1 - a) * dr
             thrust += dT
             torque += dM
         power = torque * omega
-        CT = thrust / (0.5 * self.rho * self.A * wind_speed**2)
-        CP = power / (0.5 * self.rho * self.A * wind_speed**3)
-        # If power exceeds rated power, cap it
-        if rated_power is not None and wind_speed >= self.operational_data['wind_speed_ms'][np.argmax(self.operational_data['rot_speed_rpm'])]:
+        CT = thrust / (0.5 * self.rho * self.A * V0**2)
+        CP = power / (0.5 * self.rho * self.A * V0**3)
+        if V0 >= self.get_rated_wind_speed():
             power = rated_power
-
         return thrust, torque, power, CT, CP
 
+
+    # 6. Compute θp and ω as function of V0 using strategy
     def get_optimal_operational_values(self, wind_speed):
         # Assuming the operational strategy contains wind speed, optimal pitch angle, and rotational speed
         wind_speeds = self.operational_data['wind_speed_ms']
@@ -106,34 +112,65 @@ class BEMSolver:
 
         return optimal_pitch, optimal_rot_speed
     
-     # 3. Function to compute power and thrust curve
+    def get_rated_wind_speed(self):
+        max_rot_speed = np.max(self.operational_data['rot_speed_rpm'])
+        rated_index = np.where(self.operational_data['rot_speed_rpm'] == max_rot_speed)[0][0]
+        return self.operational_data['wind_speed_ms'][rated_index]
+
+    
+    # 7. Compute power and thrust curve P(V0), T(V0)
     def compute_power_thrust_curve(self, wind_speeds):
         power_curve = []
         thrust_curve = []
-        for wind_speed in wind_speeds:
-            pitch_angle, rot_speed_rpm = self.get_optimal_operational_values(wind_speed)
-            thrust, torque, power, CT, CP = self.solve_bem(wind_speed, pitch_angle, rot_speed_rpm)
-            power_curve.append(power)
-            thrust_curve.append(thrust)
-
+        for V0 in wind_speeds:
+            theta_p, omega_rpm = self.get_optimal_operational_values(V0)
+            T, M, P, CT, CP = self.solve_bem(V0, theta_p, omega_rpm)
+            power_curve.append(P)
+            thrust_curve.append(T)
         return np.array(power_curve), np.array(thrust_curve)
 
-    # 4. Function to plot power and thrust curves
     def plot_power_thrust_curves(self, wind_speeds, power_curve, thrust_curve):
         fig, ax1 = plt.subplots()
-
         ax1.set_xlabel('Wind Speed (m/s)')
         ax1.set_ylabel('Power (W)', color='tab:blue')
-        ax1.plot(wind_speeds, power_curve, color='tab:blue', label='Power Curve')
+        ax1.plot(wind_speeds, power_curve, color='tab:blue')
         ax1.tick_params(axis='y', labelcolor='tab:blue')
 
         ax2 = ax1.twinx()
         ax2.set_ylabel('Thrust (N)', color='tab:red')
-        ax2.plot(wind_speeds, thrust_curve, color='tab:red', label='Thrust Curve')
+        ax2.plot(wind_speeds, thrust_curve, color='tab:red')
         ax2.tick_params(axis='y', labelcolor='tab:red')
 
-        fig.tight_layout()
-        plt.title('Power and Thrust Curves')
+        plt.title('Power and Thrust Curves vs Wind Speed')
+        plt.tight_layout()
+        plt.show()
+
+    # === Extra Utility Function 1 ===
+    def compute_tip_speed_ratio(self, wind_speed, rot_speed_rpm):
+        return self.compute_tsr(wind_speed, rot_speed_rpm)
+
+    def compute_tsr(self, wind_speed, rot_speed_rpm):
+        omega = (rot_speed_rpm * 2 * np.pi) / 60
+        return omega * self.R / wind_speed
+
+    # === Extra Utility Function 2 ===
+    def plot_pitch_rot_speed(self, wind_speeds):
+        pitch_vals = []
+        rpm_vals = []
+        for V0 in wind_speeds:
+            pitch, rpm = self.get_optimal_operational_values(V0)
+            pitch_vals.append(pitch)
+            rpm_vals.append(rpm)
+
+        plt.figure(figsize=(10, 4))
+        plt.plot(wind_speeds, pitch_vals, label='Pitch Angle (deg)', color='green')
+        plt.plot(wind_speeds, rpm_vals, label='Rotational Speed (rpm)', color='purple')
+        plt.xlabel('Wind Speed (m/s)')
+        plt.ylabel('Pitch / RPM')
+        plt.title('Optimal Pitch Angle and Rotational Speed vs Wind Speed')
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
         plt.show()
 
 
