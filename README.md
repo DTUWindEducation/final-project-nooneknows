@@ -74,7 +74,7 @@ The project consists of the following core components:
     - **main** 
 - **`./inputs/`**
 - **`./outputs/`** 
--**`./src`**
+- **`./src`**
     - **`./__init__/`**
     - **`./load_files/`**
     - **`./postprocessing/`**
