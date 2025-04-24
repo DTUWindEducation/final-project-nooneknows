@@ -3,15 +3,11 @@ from pathlib import Path
 import sys
 import os
 import numpy as np
-
-# Add the path to the src folder to import load_resp from src
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
-
-# Import the function load_files from load_resp module
-import load_files
+from wt import load_files
 
 # Define the path to your inputs directory (relative to the test file)
-DATA_DIR = Path(__file__).resolve().parent.parent / 'inputs' / 'IEA-15-240-RWT'
+DATA_DIR = Path('./inputs/IEA-15-240-RWT')
+
 
 def test_load_OperationalData_default():
     """Test that load_files works as expected with default values."""
