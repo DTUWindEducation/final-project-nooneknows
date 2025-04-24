@@ -1,13 +1,22 @@
+# Import the necessary libraries
 from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 class BladeGeometryLoader:
+    # A class to load and process blade geometry data from a file.
+    
     def __init__(self, filepath):
+        # Initialize the BladeGeometryLoader with the file path.
+        # filepath (str): Path to the blade geometry file.
         self.filepath = filepath
     
     def load(self):
+        # Load and process the blade geometry data.
+        # Returns:
+        # - opt_data (pd.DataFrame): DataFrame with the blade geometry data.
+        # - units_opt (dict): Dictionary mapping column names to their units.
         with open(self.filepath, 'r') as f:
             lines = f.readlines()
             index = next(i for i, line in enumerate(lines) if "BlSpn" in line)
@@ -23,10 +32,18 @@ class BladeGeometryLoader:
         return opt_data, units_opt
 
 class AirfoilDataLoader:
+    # A class to load and process airfoil data from a directory.
+    
     def __init__(self, directory):
+        # Initialize the AirfoilDataLoader with the directory path.
+        # directory (str): Path to the directory containing airfoil data files.
         self.directory = Path(directory)
     
     def load(self):
+        # Load and process airfoil data.
+        # Returns:
+        # dict: A dictionary where keys are airfoil IDs and values are dictionaries
+        #       containing airfoil data (alpha, Cl, Cd, x_coords, y_coords).
         airfoil_data = {}
         for af_id in range(50):
             af_key = f"{af_id:02d}"
@@ -52,6 +69,11 @@ class AirfoilDataLoader:
     
     @staticmethod
     def load_airfoil_coordinates(file_path):
+        # Load airfoil coordinates from a file.
+        # file_path (str): Path to the airfoil coordinates file.
+        # Returns:
+        # - x_coords (list): List of x-coordinates.
+        # - y_coords (list): List of y-coordinates.
         x_coords, y_coords = [], []
         with open(file_path, 'r') as file:
             lines = file.readlines()
@@ -65,10 +87,22 @@ class AirfoilDataLoader:
         return x_coords, y_coords
 
 class OperationalDataLoader:
+    # A class to load and process operational data from a file.
+    
     def __init__(self, filepath):
+        # Initialize the OperationalDataLoader with the file path.
+        # filepath (str): Path to the operational data file.
         self.filepath = filepath
     
     def load(self):
+        # Load and process operational data.
+        # Returns:
+        # dict: A dictionary containing operational data:
+        #       - wind_speed_ms (np.ndarray): Wind speed in m/s.
+        #       - pitch_deg (np.ndarray): Pitch angle in degrees.
+        #       - rot_speed_rpm (np.ndarray): Rotor speed in RPM.
+        #       - aero_power_kw (np.ndarray): Aerodynamic power in kW.
+        #       - aero_thrust_kw (np.ndarray): Aerodynamic thrust in kW.
         with open(self.filepath, 'r') as f:
             lines = f.readlines()
         start_index = next(i for i, line in enumerate(lines) if "wind speed [m/s]" in line.lower()) + 1
