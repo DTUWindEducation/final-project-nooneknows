@@ -3,7 +3,7 @@ import sys
 import os
 import numpy as np
 from pathlib import Path
-import load_files, solve_bem , postprocessing
+from wt import load_files, solve_bem , postprocessing
 
 # import (
 #     BladeGeometryLoader,
@@ -14,8 +14,11 @@ import load_files, solve_bem , postprocessing
 #     plot_power_thrust_curves,
 # )
 
-# Define paths using pathlib
-base_path = Path("./inputs/IEA-15-240-RWT")
+# Get the directory of this script, no matter where it's run from
+this_dir = Path(__file__).resolve().parent
+
+# Define paths relative to this script's location
+base_path = this_dir / ".." / "inputs" / "IEA-15-240-RWT"
 blade_file = base_path / "IEA-15-240-RWT_AeroDyn15_blade.dat"
 airfoil_dir = base_path / "Airfoils"
 operational_file = base_path / "IEA_15MW_RWT_Onshore.opt"

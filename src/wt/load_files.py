@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -24,13 +24,13 @@ class BladeGeometryLoader:
 
 class AirfoilDataLoader:
     def __init__(self, directory):
-        self.directory = directory
+        self.directory = Path(directory)
     
     def load(self):
         airfoil_data = {}
         for af_id in range(50):
             af_key = f"{af_id:02d}"
-            polar_file = os.path.join(self.directory, f"IEA-15-240-RWT_AeroDyn15_Polar_{af_key}.dat")
+            polar_file = self.directory / f"IEA-15-240-RWT_AeroDyn15_Polar_{af_key}.dat"
             
             with open(polar_file, 'r') as f:
                 lines = f.readlines()
@@ -38,7 +38,7 @@ class AirfoilDataLoader:
             polar_data = np.loadtxt(polar_file, skiprows=start_index)
             
             alpha, Cl, Cd = polar_data[:, 0], polar_data[:, 1], polar_data[:, 2]
-            coords_file = os.path.join(self.directory, f"IEA-15-240-RWT_AF{af_key}_Coords.txt")
+            coords_file = self.directory / f"IEA-15-240-RWT_AF{af_key}_Coords.txt"
             x_coords, y_coords = AirfoilDataLoader.load_airfoil_coordinates(coords_file)
             
             airfoil_data[af_key] = {
@@ -81,4 +81,3 @@ class OperationalDataLoader:
             'aero_power_kw': operational_data[:, 3],
             'aero_thrust_kw': operational_data[:, 4]
         }
-    
