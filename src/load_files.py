@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 class BladeGeometryLoader:
-    def __init__(self, filepath="./inputs/IEA-15-240-RWT/IEA-15-240-RWT_AeroDyn15_blade.dat"):
+    def __init__(self, filepath):
         self.filepath = filepath
     
     def load(self):
@@ -23,7 +23,7 @@ class BladeGeometryLoader:
         return opt_data, units_opt
 
 class AirfoilDataLoader:
-    def __init__(self, directory="./inputs/IEA-15-240-RWT/Airfoils"):
+    def __init__(self, directory):
         self.directory = directory
     
     def load(self):
@@ -65,7 +65,7 @@ class AirfoilDataLoader:
         return x_coords, y_coords
 
 class OperationalDataLoader:
-    def __init__(self, filepath="./inputs/IEA-15-240-RWT/IEA_15MW_RWT_Onshore.opt"):
+    def __init__(self, filepath):
         self.filepath = filepath
     
     def load(self):
