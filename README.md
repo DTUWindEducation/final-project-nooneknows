@@ -16,10 +16,10 @@ The purpose of the code is to forecast the aerodynamic behaviour of a wind turbi
 The code performs the following key tasks:
 - Loads wind turbine data.
 - Computes lift coefficients and drag coefficients.
-- Compute the axial and tangential induction factors.
-- Compute the thrust torque and power.
-- Compute optimal operational strategy.
-- Compute power and thrust.
+- Computes the axial and tangential induction factors.
+- Computes the thrust torque and power.
+- Computes optimal operational strategy.
+- Computes power and thrust.
 - Generates plots.
 
 ## Quick-start guide
@@ -30,19 +30,25 @@ git clone <repository_url>
 cd <repository_directory>
 ```
 
-### 2. Install packages
+### 2. Install the package
+Open the terminal and install the package:
+```sh
+pip install .
+```
+
+### 3. Install packages
 Ensure you have Python installed. Then, install the required packages (numpy, scipy, matplotlib ecc..):
 
 ```sh
 pip install numpy pandas pyplot
 ```
 
-### 3. Run the main script
+### 4. Run the main script
 Execute the script to analyze the wind data:
 ```sh
 python main.py
 ```
-## 4. How the code works
+## 5. How the code works
 
 The project consists of the following core components:
 
@@ -86,11 +92,12 @@ The project consists of the following core components:
 
 The package takes the blade geometry data, the airfoil data and the operational data through three different classes and uses them in the SolveBEM class. These classes are contained in main, where also the plots for the power curve and thrust curve are created.  
 
-![alt text](image.png)
+![alt text](image-1.png)
+
+The diagram source file can be found [here](./project_structure.drawio).
 
 ## Peer review
 
 For this project, everybody tried to understand and begin to approach the code alone. This to have a deep understanding of the problem and a structured idea on how to solve it. 
-After this, we discussed how to complete the project and together we wrote both the **`__init__.py`** and **`main.py`**. This way, everybody had a clear view of the 
-code and were able to understand the solution.
+After this, we discussed how to complete the project and together we wrote both the files contained in the **`__init__.py`** and **`main.py`**. This way, everybody had a clear view of the code and were able to understand the solution.
 This, README file as well as the other that are not afore-mentioned were also produced together as a group.
