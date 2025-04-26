@@ -17,7 +17,7 @@ def plot_all_airfoils(airfoil_data):
 
     # Generate a colormap to apply unique colors
     # Use 'tab20' colormap (you can change to other colormaps)
-    cmap = cm.get_cmap('tab20')  
+    cmap = plt.colormaps.get_cmap('tab20')  
     
     # Iterate through each airfoil and plot its shape
     for i, (af_key, airfoil) in enumerate(airfoil_data.items()):
