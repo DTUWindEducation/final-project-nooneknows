@@ -58,6 +58,28 @@ Execute the script to analyze the wind data:
 ```sh
 python examples/main.py
 ```
+
+### **Project Directories & files**
+- **`./examples/`**: 
+    - **`./main/`** 
+- **`./inputs/`**:
+  - **`./IEA-15-240-RWT/`** 
+  - **`project_structure.drawio/`**: diagram of the code structure.
+- **`./outputs/`** 
+- **`./src`**:
+    - **`./__init__/`**
+    - **`./load_files/`**
+    - **`./postprocessing/`**
+    - **`./solve_bem/`**
+- **`./tests`**:
+    - **`./test_load_file/`**
+    - **`./test_plot/`**
+    - **`./test_solve_bem/`** 
+- **`./pyproject.toml/`**
+- **`./environment.yml`**
+- **`./README.md`**:
+- **`./.gitignore`**
+
 ## 5. How the code works
 
 The project consists of the following core components:
@@ -69,40 +91,21 @@ The project consists of the following core components:
   - Generates plots to visualize results.
 
 ### **Helper Functions**
-- **`__init__.py`**: Contains the following features:
-
-  ### Data Loading:
-  - BladeGeometryLoader: loads the blade geometry data.
-  - AirfoilDataLoader: loads the airfoil data. 
-  - OperationalDataLoader: loads the operational data. 
-
-  ### Simulation:
-  - BEMSolver: this class computes the rotational speed as well as the thrust, torque, power, lift and drag coefficients.
-
-  ### Results Processing & Visualization:
-- `plot_airfoil_shape()` plots the airfoil shape
-- `plot_all_airfoils()` plots the airfoil shapes for all airfoils
-- `plot_power_thrust_curves()` plots the thrust and power curves from operational data
-- `plot_pitch_rot_speed()` plots rotational speed and pitch settings
-- `plot_spanwise_normal_tangential_loads()` plots normal and tangential loads versus blade span
-- `plot_bem_power_thrust_curves()` plot power and thrust coming from the bem code
-
-### **Project Directories & files**
-- **`./examples/`**: 
-    - **main** 
-- **`./inputs/`**
-- **`./outputs/`** 
-- **`./src`**
-    - **`./__init__/`**
-    - **`./load_files/`**
-    - **`./postprocessing/`**
-    - **`./solve_bem/`**
-- **`project_structure.drawio`**: diagram of the code structure.
-
+- **`__init__.py`**: Recalls the following files:
+    - **`load_file.py`**:
+      ### classes for Data Loading:
+      - BladeGeometryLoader: loads the blade geometry data.
+      - AirfoilDataLoader: loads the airfoil data. 
+      - OperationalDataLoader: loads the operational data. 
+    -**`solve_bem.py`**:
+      ### class for Simulation:
+      - BEMSolver: this class computes the rotational speed as well as the thrust, torque, power, lift and drag coefficients.
+    -**`postprocessing.py`**:
+      -Results Processing & Visualization through plots
 
 ## Architecture
 
-The package takes the blade geometry data, the airfoil data and the operational data through three different classes and uses them in the SolveBEM class. These classes are contained in main, where also the plots for the power curve and thrust curve are created.  
+The package takes the blade geometry data, the airfoil data and the operational data through three different classes and uses them in the BEMsolver class contained in the solve_bem script. In the postprocessing folder the plotting function are defined and all the scripts can be run through main.py by recalling the package wt.
 
 ![alt text](inputs/Diagram.png)
 
@@ -111,5 +114,7 @@ The diagram source file can be found [here](inputs/project_structure.drawio).
 ## Peer review
 
 For this project, everybody tried to understand and begin to approach the code alone. This to have a deep understanding of the problem and a structured idea on how to solve it. 
-After this, we discussed how to complete the project and together we wrote both the files contained in the **`__init__.py`** and **`main.py`**. This way, everybody had a clear view of the code and were able to understand the solution.
-This, README file as well as the other that are not afore-mentioned were also produced together as a group.
+Every Tuesday morning and Thursday after class we have implemented the code for the files contained in our package wt, by following the project structure and guidelines.After ensuring that the package was working correctly, we have created main.py to be able to see the results and plots.
+Then, three tests for each file contained in the wt package have been created and tested, to be sure they were correct.
+Lastly, Pylint guidelines have been applied to the codes and this README file has been created.
+This group workflow can be clearly seen in the pull request history, which has been frequently updated by different team member in agreement with the others. 

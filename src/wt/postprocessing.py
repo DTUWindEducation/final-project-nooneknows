@@ -134,7 +134,7 @@ def plot_spanwise_normal_tangential_loads(spanwise_data):
 
 def plot_pitch_rot_speed(wind_speeds, pitch_vals, rpm_vals):
     """
-    N.3 EXTRA FUNTION:
+    N.3 EXTRA FUNCTION:
     Plot optimal pitch angle and rotational speed curves.
 
     Args:
