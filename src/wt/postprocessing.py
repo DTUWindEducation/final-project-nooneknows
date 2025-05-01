@@ -108,3 +108,79 @@ def plot_power_thrust_curves(operational_data):
 
     plt.tight_layout()
     plt.show()
+
+def plot_spanwise_normal_tangential_loads(spanwise_data):
+    """
+    Plot spanwise normal and tangential load distributions.
+
+    Args:
+        spanwise_data (dict): Dictionary with keys 'r', 'Fn', 'Ft'.
+    """
+    r = spanwise_data["r"]
+    Fn = spanwise_data["Fn"]
+    Ft = spanwise_data["Ft"]
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(r, Fn, label='Normal Load (N/m)', color='blue')
+    plt.plot(r, Ft, label='Tangential Load (N/m)', color='orange')
+
+    plt.xlabel('Span Position (m)')
+    plt.ylabel('Load per unit length (N/m)')
+    plt.title('Spanwise Load Distribution')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+def plot_pitch_rot_speed(wind_speeds, pitch_vals, rpm_vals):
+    """
+    Plot optimal pitch angle and rotational speed curves.
+
+    Args:
+        wind_speeds (np.ndarray): Array of wind speeds in m/s.
+        pitch_vals (np.ndarray): Array of pitch angles in degrees.
+        rpm_vals (np.ndarray): Array of rotational speeds in RPM.
+    """
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+    axes[0].plot(wind_speeds, pitch_vals, color='green')
+    axes[0].set_xlabel('Wind Speed (m/s)')
+    axes[0].set_ylabel('Pitch Angle (deg)')
+    axes[0].set_title('Optimal Pitch Angle vs Wind Speed')
+    axes[0].grid(True)
+
+    axes[1].plot(wind_speeds, rpm_vals, color='purple')
+    axes[1].set_xlabel('Wind Speed (m/s)')
+    axes[1].set_ylabel('Rotational Speed (RPM)')
+    axes[1].set_title('Optimal Rotational Speed vs Wind Speed')
+    axes[1].grid(True)
+
+    plt.tight_layout()
+    plt.show()
+    
+def plot_bem_power_thrust_curves(wind_speeds, power_curve, thrust_curve):
+    """
+    Plot BEM-computed power and thrust curves.
+
+    Args:
+        wind_speeds (np.ndarray): Wind speeds in m/s.
+        power_curve (np.ndarray): Power output in W.
+        thrust_curve (np.ndarray): Thrust in N.
+    """
+    fig, ax1 = plt.subplots()
+
+    ax1.set_xlabel('Wind Speed (m/s)')
+    ax1.set_ylabel('Power (W)', color='tab:blue')
+    ax1.plot(wind_speeds, power_curve, color='tab:blue')
+    ax1.tick_params(axis='y', labelcolor='tab:blue')
+    ax1.grid(True)
+
+    ax2 = ax1.twinx()
+    ax2.set_ylabel('Thrust (N)', color='tab:red')
+    ax2.plot(wind_speeds, thrust_curve, color='tab:red')
+    ax2.tick_params(axis='y', labelcolor='tab:red')
+
+    plt.title('BEM Power and Thrust vs Wind Speed')
+    plt.tight_layout()
+    plt.show()
+
+
