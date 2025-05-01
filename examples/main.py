@@ -28,14 +28,16 @@ airfoil_loader = load_files.AirfoilDataLoader(directory=AIRFOIL_DIR)
 airfoil_data = airfoil_loader.load()
 
 # Load operational data
-operational_loader = load_files.OperationalDataLoader(filepath=OPERATIONAL_FILE)
+operational_loader = load_files.OperationalDataLoader(
+    filepath=OPERATIONAL_FILE)
 operational_data = operational_loader.load()
 
 # Initialize the BEM solver with the loaded data
 bem_solver = solve_bem.BEMSolver(blade_data, airfoil_data, operational_data)
 
 # Perform an initial BEM calculation for specific conditions
-# Example values: wind speed = 10 m/s, pitch angle = 0 degrees, rotor speed = 5 rpm
+# Example values: wind speed = 10 m/s,
+# pitch angle = 0 degrees, rotor speed = 5 rpm
 thrust, torque, power, CT, CP = bem_solver.solve_bem(10, 0, 5)
 
 # Plot all airfoil data for visualization
@@ -52,11 +54,16 @@ thrust, torque, power, CT, CP = bem_solver.solve_bem(
 )
 
 # Print the results of the BEM calculation
-print(f"Thrust: {thrust:.2f} N")  # Thrust force in Newtons
-print(f"Torque: {torque:.2f} Nm")  # Torque in Newton-meters
-print(f"Power: {power:.2f} W")  # Power in Watts
-print(f"Thrust Coefficient (CT): {CT:.4f}")  # Non-dimensional thrust coefficient
-print(f"Power Coefficient (CP): {CP:.4f}")  # Non-dimensional power coefficient
+# Thrust force in Newtons
+print(f"Thrust: {thrust:.2f} N")
+# Torque in Newton-meters
+print(f"Torque: {torque:.2f} Nm")
+# Power in Watts
+print(f"Power: {power:.2f} W")
+# Non-dimensional thrust coefficient
+print(f"Thrust Coefficient (CT): {CT:.4f}")
+# Non-dimensional power coefficient
+print(f"Power Coefficient (CP): {CP:.4f}")
 
 # Plot power and thrust curves based on operational data
 postprocessing.plot_power_thrust_curves(operational_data)
@@ -68,19 +75,14 @@ WIND_SPEEDS = np.linspace(3, 25, 100)  # Wind speeds from 3 m/s to 25 m/s
 power_curve, thrust_curve, omega, pitch = bem_solver.compute_power_thrust_curve(WIND_SPEEDS)
 
 # Plot the computed power and thrust curves
-postprocessing.plot_bem_power_thrust_curves(WIND_SPEEDS, power_curve, thrust_curve)
+postprocessing.plot_bem_power_thrust_curves(
+    WIND_SPEEDS, power_curve, thrust_curve)
 postprocessing.plot_pitch_rot_speed(WIND_SPEEDS, pitch, omega)
 
 wind_speed = 10.0
 pitch, rpm, _ = bem_solver.get_optimal_operational_values(wind_speed)
 
 # Compute and plot spanwise normal and tangential loads
-spanwise_data = bem_solver.compute_spanwise_normal_tangential_loads(wind_speed, pitch, rpm)
+spanwise_data = bem_solver.compute_spanwise_normal_tangential_loads(
+    wind_speed, pitch, rpm)
 postprocessing.plot_spanwise_normal_tangential_loads(spanwise_data)
-
-
-
-
-
-
-

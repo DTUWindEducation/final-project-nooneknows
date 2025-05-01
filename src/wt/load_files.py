@@ -1,10 +1,12 @@
 """
-Module for loading and processing blade geometry, airfoil, and operational data.
+Module for loading and processing blade geometry,
+airfoil, and operational data.
 """
 
 from pathlib import Path
 import numpy as np
 import pandas as pd
+# pylint: disable=C0103
 
 
 class BladeGeometryLoader:
@@ -27,8 +29,10 @@ class BladeGeometryLoader:
 
         Returns:
             tuple: A tuple containing:
-                - opt_data (pd.DataFrame): DataFrame with the blade geometry data.
-                - units_opt (dict): Dictionary mapping column names to their units.
+                - opt_data (pd.DataFrame):
+                DataFrame with the blade geometry data.
+                - units_opt (dict):
+                Dictionary mapping column names to their units.
         """
         with open(self.filepath, 'r', encoding='utf-8') as file:
             lines = file.readlines()
@@ -55,7 +59,8 @@ class AirfoilDataLoader:
         Initialize the AirfoilDataLoader with the directory path.
 
         Args:
-            directory (str): Path to the directory containing airfoil data files.
+            directory (str):
+            Path to the directory containing airfoil data files.
         """
         self.directory = Path(directory)
 

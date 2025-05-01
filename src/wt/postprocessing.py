@@ -5,6 +5,7 @@ data, including power and thrust curves.
 
 import matplotlib.pyplot as plt
 import numpy as np
+# pylint: disable=C0103
 
 
 def plot_airfoil_shape(
@@ -80,13 +81,9 @@ def plot_power_thrust_curves(operational_data):
     wind_speeds = np.arange(0.5, 25.5, 0.1)
 
     wind_speed_ms = operational_data["wind_speed_ms"]
-    pitch_deg = operational_data["pitch_deg"]
-    rot_speed_rpm = operational_data["rot_speed_rpm"]
     aero_power_kw = operational_data["aero_power_kw"]
     aero_thrust_kn = operational_data["aero_thrust_kw"]
 
-    pitch_interp = np.interp(wind_speeds, wind_speed_ms, pitch_deg)
-    omega_interp = np.interp(wind_speeds, wind_speed_ms, rot_speed_rpm)
     power_interp = np.interp(wind_speeds, wind_speed_ms, aero_power_kw)
     thrust_interp = np.interp(wind_speeds, wind_speed_ms, aero_thrust_kn)
 
@@ -109,8 +106,10 @@ def plot_power_thrust_curves(operational_data):
     plt.tight_layout()
     plt.show()
 
+
 def plot_spanwise_normal_tangential_loads(spanwise_data):
     """
+    N.2 EXTRA FUNCTION:
     Plot spanwise normal and tangential load distributions.
 
     Args:
@@ -131,8 +130,11 @@ def plot_spanwise_normal_tangential_loads(spanwise_data):
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+
+
 def plot_pitch_rot_speed(wind_speeds, pitch_vals, rpm_vals):
     """
+    N.3 EXTRA FUNTION:
     Plot optimal pitch angle and rotational speed curves.
 
     Args:
@@ -156,7 +158,8 @@ def plot_pitch_rot_speed(wind_speeds, pitch_vals, rpm_vals):
 
     plt.tight_layout()
     plt.show()
-    
+
+
 def plot_bem_power_thrust_curves(wind_speeds, power_curve, thrust_curve):
     """
     Plot BEM-computed power and thrust curves.
@@ -182,5 +185,3 @@ def plot_bem_power_thrust_curves(wind_speeds, power_curve, thrust_curve):
     plt.title('BEM Power and Thrust vs Wind Speed')
     plt.tight_layout()
     plt.show()
-
-
