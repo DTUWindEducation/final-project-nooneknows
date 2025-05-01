@@ -104,7 +104,7 @@ class BEMSolver:
 
         return a_new, a_prime_new
 
-    def solve_bem(self, V0, theta_p, rot_speed_rpm):
+    def solve_bem(self, V0, theta_p, rot_speed_rpm, target_power_kw = None):
         """
         Solve BEM equations to compute thrust, torque, and power.
 
@@ -118,8 +118,10 @@ class BEMSolver:
                    and power coefficient (CP).
         """
         omega = (rot_speed_rpm * 2 * np.pi) / 60
+        r_vals = self.blade_data['BlSpn']
         thrust, torque = 0, 0
-        rated_power = 15678.725250 * 1e3
+        # rated_power = 15678.725250 * 1e3
+        dT_vals, dM_vals = [], []
 
         for i, r in enumerate(self.blade_data['BlSpn']):
             c_r = self.blade_data['BlChord'][i]
@@ -130,15 +132,19 @@ class BEMSolver:
             dr = self.R / len(self.blade_data)
             dT = 4 * np.pi * r * self.rho * V0**2 * a * (1 - a) * dr
             dM = 4 * np.pi * r**3 * self.rho * V0 * omega * a_prime * (1 - a) * dr
-            thrust += dT
-            torque += dM
+            dT_vals.append(dT)
+            dM_vals.append(dM)
 
+        thrust = np.trapz(dT_vals, dx=dr)
+        torque = np.trapz(dM_vals, dx=dr)
         power = torque * omega
+
+        if target_power_kw is not None:
+            target_power_kw=target_power_kw*1e3
+            power = min(power,target_power_kw)
+        
         CT = thrust / (0.5 * self.rho * self.A * V0**2)
         CP = power / (0.5 * self.rho * self.A * V0**3)
-
-        if V0 >= self.get_rated_wind_speed():
-            power = rated_power
 
         return thrust, torque, power, CT, CP
 
@@ -155,19 +161,29 @@ class BEMSolver:
         wind_speeds = self.operational_data['wind_speed_ms']
         optimal_pitch_angles = self.operational_data['pitch_deg']
         optimal_rot_speeds = self.operational_data['rot_speed_rpm']
-        max_rot_speed = np.max(optimal_rot_speeds)
+        power_curve_kw = self.operational_data['aero_power_kw']
 
-        indices = np.where(optimal_rot_speeds == max_rot_speed)
-        index = indices[0][0]
-        rated_wind_speed = wind_speeds[index]
+        # Interpolate pitch, rotation speed, and power
+        interp_pitch = np.interp(wind_speed, wind_speeds, optimal_pitch_angles)
+        interp_rot_speed = np.interp(wind_speed, wind_speeds, optimal_rot_speeds)
+        interp_power = np.interp(wind_speed, wind_speeds, power_curve_kw)
 
-        optimal_pitch = np.interp(wind_speed, wind_speeds, optimal_pitch_angles)
-        optimal_rot_speed = np.interp(wind_speed, wind_speeds, optimal_rot_speeds)
+        # Identify rated power and rated wind speed
+        rated_power = np.max(power_curve_kw)
+        rated_indices = np.where(power_curve_kw == rated_power)[0]
+        rated_index = rated_indices[0]
+        rated_wind_speed = wind_speeds[rated_index]
+        rated_rot_speed = optimal_rot_speeds[rated_index]
 
+        # If wind speed >= rated, cap at rated power behavior
         if wind_speed >= rated_wind_speed:
-            optimal_rot_speed = max_rot_speed
+            optimal_pitch = interp_pitch   # Pitch still varies to regulate power
+            optimal_rot_speed = rated_rot_speed  # Fix RPM at rated
+        else:
+            optimal_pitch = interp_pitch
+            optimal_rot_speed = interp_rot_speed
 
-        return optimal_pitch, optimal_rot_speed
+        return optimal_pitch, optimal_rot_speed, power_curve_kw
 
     def get_rated_wind_speed(self):
         """
@@ -191,15 +207,19 @@ class BEMSolver:
         Returns:
             tuple: Power curve (W) and thrust curve (N).
         """
-        power_curve, thrust_curve = [], []
-
+        power_curve = []
+        thrust_curve = []
+        omega_curve = []
+        pitch_curve = []
         for V0 in wind_speeds:
-            theta_p, omega_rpm = self.get_optimal_operational_values(V0)
-            T, _, P, _, _ = self.solve_bem(V0, theta_p, omega_rpm)
+            theta_p, omega_rpm, power_curve_kw = self.get_optimal_operational_values(V0)
+            interp_power_kw = np.interp(V0, self.operational_data['wind_speed_ms'], power_curve_kw)
+            T, M, P, CT, CP = self.solve_bem(V0, theta_p, omega_rpm, target_power_kw=interp_power_kw)
             power_curve.append(P)
             thrust_curve.append(T)
-
-        return np.array(power_curve), np.array(thrust_curve)
+            omega_curve.append(omega_rpm)
+            pitch_curve.append(theta_p)
+        return np.array(power_curve), np.array(thrust_curve), np.array(omega_curve), np.array(pitch_curve)
 
     def plot_power_thrust_curves(self, wind_speeds, power_curve, thrust_curve):
         """

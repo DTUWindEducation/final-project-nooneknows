@@ -65,7 +65,7 @@ postprocessing.plot_power_thrust_curves(operational_data)
 WIND_SPEEDS = np.linspace(3, 25, 100)  # Wind speeds from 3 m/s to 25 m/s
 
 # Compute power and thrust curves for the range of wind speeds
-power_curve, thrust_curve = bem_solver.compute_power_thrust_curve(WIND_SPEEDS)
+power_curve, thrust_curve,_,_ = bem_solver.compute_power_thrust_curve(WIND_SPEEDS)
 
 # Plot the computed power and thrust curves
 bem_solver.plot_power_thrust_curves(WIND_SPEEDS, power_curve, thrust_curve)
