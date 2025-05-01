@@ -50,7 +50,7 @@ pip install .
 Ensure you have Python installed. Then, install the required packages (numpy, scipy, matplotlib ecc..):
 
 ```sh
-pip install numpy pandas mathplotlib
+pip install numpy pandas matplotlib
 ```
 
 ### 4. Run the main script
