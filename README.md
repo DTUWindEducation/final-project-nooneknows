@@ -20,6 +20,7 @@ The code performs the following key tasks:
 - Computes the thrust torque and power.
 - Computes optimal operational strategy.
 - Computes power and thrust.
+- Compute spanwise loads (tangential and normal)
 - Generates plots.
 
 ## Quick-start guide
@@ -31,6 +32,15 @@ cd <repository_directory>
 ```
 
 ### 2. Install the package
+Create a new environment through the file environment.yml
+```sh
+conda env create -f environment.yml
+```
+Activate it
+```sh
+conda activate wt
+```
+
 Open the terminal and install the package:
 ```sh
 pip install .
@@ -72,8 +82,10 @@ The project consists of the following core components:
   ### Results Processing & Visualization:
 - `plot_airfoil_shape()` plots the airfoil shape
 - `plot_all_airfoils()` plots the airfoil shapes for all airfoils
-- `plot_power_thrust_curves()` plots the thrust and power curves 
-
+- `plot_power_thrust_curves()` plots the thrust and power curves from operational data
+- `plot_pitch_rot_speed()` plots rotational speed and pitch settings
+- `plot_spanwise_normal_tangential_loads()` plots normal and tangential loads versus blade span
+- `plot_bem_power_thrust_curves()` plot power and thrust coming from the bem code
 
 ### **Project Directories & files**
 - **`./examples/`**: 
@@ -92,7 +104,7 @@ The project consists of the following core components:
 
 The package takes the blade geometry data, the airfoil data and the operational data through three different classes and uses them in the SolveBEM class. These classes are contained in main, where also the plots for the power curve and thrust curve are created.  
 
-![alt text](image-1.png)
+![alt text](Diagram.png)
 
 The diagram source file can be found [here](./project_structure.drawio).
 
