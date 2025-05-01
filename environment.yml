@@ -1,0 +1,5 @@
+name: wt
+dependencies:
+  - pylint
+  - pytest
+  - pytest-cov
