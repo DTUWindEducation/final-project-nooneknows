@@ -50,13 +50,13 @@ pip install .
 Ensure you have Python installed. Then, install the required packages (numpy, scipy, matplotlib ecc..):
 
 ```sh
-pip install numpy pandas pyplot
+pip install numpy pandas matplotlib
 ```
 
 ### 4. Run the main script
 Execute the script to analyze the wind data:
 ```sh
-python main.py
+python examples/main.py
 ```
 ## 5. How the code works
 
@@ -106,7 +106,7 @@ The package takes the blade geometry data, the airfoil data and the operational 
 
 ![alt text](inputs/Diagram.png)
 
-The diagram source file can be found [here](./project_structure.drawio).
+The diagram source file can be found [here](inputs/project_structure.drawio).
 
 ## Peer review
 
