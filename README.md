@@ -104,7 +104,7 @@ The project consists of the following core components:
 
 The package takes the blade geometry data, the airfoil data and the operational data through three different classes and uses them in the SolveBEM class. These classes are contained in main, where also the plots for the power curve and thrust curve are created.  
 
-![alt text](Diagram.png)
+![alt text](inputs/Diagram.png)
 
 The diagram source file can be found [here](./project_structure.drawio).
 
