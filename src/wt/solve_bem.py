@@ -249,7 +249,7 @@ class BEMSolver:
 
     def plot_pitch_rot_speed(self, wind_speeds):
         """
-        Plot optimal pitch angle and rotational speed curves.
+        Plot optimal pitch angle and rotational speed curves in two subplots.
 
         Args:
             wind_speeds (np.ndarray): Array of wind speeds in m/s.
@@ -257,20 +257,91 @@ class BEMSolver:
         pitch_vals, rpm_vals = [], []
 
         for V0 in wind_speeds:
-            pitch, rpm = self.get_optimal_operational_values(V0)
+            pitch, rpm, _ = self.get_optimal_operational_values(V0)
             pitch_vals.append(pitch)
             rpm_vals.append(rpm)
 
-        plt.figure(figsize=(10, 4))
-        plt.plot(wind_speeds, pitch_vals, label='Pitch Angle (deg)', color='green')
-        plt.plot(wind_speeds, rpm_vals, label='Rotational Speed (rpm)',
-                 color='purple')
-        plt.xlabel('Wind Speed (m/s)')
-        plt.ylabel('Pitch / RPM')
-        plt.title('Optimal Pitch Angle and Rotational Speed vs Wind Speed')
+        fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+        # Plot pitch angle
+        axes[0].plot(wind_speeds, pitch_vals, color='green')
+        axes[0].set_xlabel('Wind Speed (m/s)')
+        axes[0].set_ylabel('Pitch Angle (deg)')
+        axes[0].set_title('Optimal Pitch Angle vs Wind Speed')
+        axes[0].grid(True)
+
+        # Plot rotational speed
+        axes[1].plot(wind_speeds, rpm_vals, color='purple')
+        axes[1].set_xlabel('Wind Speed (m/s)')
+        axes[1].set_ylabel('Rotational Speed (rpm)')
+        axes[1].set_title('Optimal Rotational Speed vs Wind Speed')
+        axes[1].grid(True)
+
+        plt.tight_layout()
+        plt.show()
+
+    
+    def compute_spanwise_normal_tangential_loads(self, V0, theta_p, rot_speed_rpm):
+        """
+        Compute spanwise normal and tangential force distributions (per unit length).
+
+        Args:
+            V0 (float): Wind speed in m/s.
+            theta_p (float): Pitch angle in degrees.
+            rot_speed_rpm (float): Rotational speed in RPM.
+
+        Returns:
+            dict: Dictionary with span positions and normal/tangential load components.
+        """
+        omega = (rot_speed_rpm * 2 * np.pi) / 60
+        r_vals = self.blade_data['BlSpn']
+        normal_loads, tangential_loads = [], []
+
+        for i, r in enumerate(r_vals):
+            c_r = self.blade_data['BlChord'][i]
+            beta_r = np.radians(self.blade_data['BlTwist'][i])
+            airfoil_id = str(int(self.blade_data['BlAFID'][i]) - 1).zfill(2)
+
+            a, a_prime = self.compute_induction(r, V0, theta_p, omega, c_r, beta_r, airfoil_id)
+
+            phi = np.arctan((1 - a) * V0 / ((1 + a_prime) * omega * r + 1e-6))
+            alpha = np.degrees(phi) - (theta_p + np.rad2deg(beta_r))
+            Cl, Cd = self.compute_aero_coeff(r, alpha)
+            W = np.sqrt(((1 - a) * V0)**2 + ((1 + a_prime) * omega * r)**2)
+
+            L = 0.5 * self.rho * W**2 * c_r * Cl
+            D = 0.5 * self.rho * W**2 * c_r * Cd
+
+            Fn = L * np.cos(phi) + D * np.sin(phi)  # Normal force (N/m)
+            Ft = L * np.sin(phi) - D * np.cos(phi)  # Tangential force (N/m)
+
+            normal_loads.append(Fn)
+            tangential_loads.append(Ft)
+
+        return {
+            "r": r_vals,
+            "Fn": np.array(normal_loads),
+            "Ft": np.array(tangential_loads)
+        }
+
+    def plot_spanwise_normal_tangential_loads(self, spanwise_data):
+        """
+        Plot spanwise normal and tangential load distributions.
+
+        Args:
+            spanwise_data (dict): Output of compute_spanwise_normal_tangential_loads().
+        """
+        r = spanwise_data["r"]
+
+        plt.figure(figsize=(10, 5))
+        plt.plot(r, spanwise_data["Fn"], label='Normal Load (N/m)', color='blue')
+        plt.plot(r, spanwise_data["Ft"], label='Tangential Load (N/m)', color='orange')
+
+        plt.xlabel('Span Position (m)')
+        plt.ylabel('Load per unit length (N/m)')
+        plt.title('Spanwise Load Distribution')
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
         plt.show()
-
 
