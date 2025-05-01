@@ -19,6 +19,10 @@ BLADE_FILE = BASE_PATH / "IEA-15-240-RWT_AeroDyn15_blade.dat"
 AIRFOIL_DIR = BASE_PATH / "Airfoils"
 OPERATIONAL_FILE = BASE_PATH / "IEA_15MW_RWT_Onshore.opt"
 
+""" 
+    1. Load and parse the provided turbine data
+"""
+
 # Load blade geometry data
 blade_loader = load_files.BladeGeometryLoader(filepath=BLADE_FILE)
 blade_data, _ = blade_loader.load()
@@ -32,6 +36,20 @@ operational_loader = load_files.OperationalDataLoader(
     filepath=OPERATIONAL_FILE)
 operational_data = operational_loader.load()
 
+"""
+    3.Compute lift coefficient (Cl) and drag coefficient (Cd) as function of span position (r) and angle of attack (α)
+"""
+
+"""
+    4.Compute the axial (a) and tangential (a′) induction factors as function of span position (r),
+    the inflow wind speed V0, the blade pitch angle (θp) and the rotational speed ω
+"""
+
+"""
+    5.Compute the thrust (T), torque (M), and power (P) of the rotor as function of the inflow wind speed V0 ,
+    the blade pitch angle (θp) and the rotational speed ω
+"""
+
 # Initialize the BEM solver with the loaded data
 bem_solver = solve_bem.BEMSolver(blade_data, airfoil_data, operational_data)
 
@@ -40,9 +58,17 @@ bem_solver = solve_bem.BEMSolver(blade_data, airfoil_data, operational_data)
 # pitch angle = 0 degrees, rotor speed = 5 rpm
 thrust, torque, power, CT, CP = bem_solver.solve_bem(10, 0, 5)
 
+"""
+    2. Plot the provided airfoil shapes in one figure
+"""
+
 # Plot all airfoil data for visualization
 postprocessing.plot_all_airfoils(airfoil_data)
 
+"""
+    6. Compute optimal operational strategy, i.e., blade pitch angle (θp) and rotational speed (ω),
+    as function of wind speed (V0), based on the provided operational strategy in IEA_15MW_RWT_Onshore.opt
+"""
 # Define specific conditions for BEM calculation
 WIND_SPEED = 10  # Wind speed in m/s
 PITCH_ANGLE = 0  # Pitch angle in degrees
@@ -65,6 +91,11 @@ print(f"Thrust Coefficient (CT): {CT:.4f}")
 # Non-dimensional power coefficient
 print(f"Power Coefficient (CP): {CP:.4f}")
 
+"""
+    7. Compute and plot power curve ($P(V_0)$) and thrust curve ($T(V_0)$) 
+    based on the optimal operational strategy obtained in the previous function.
+"""
+
 # Plot power and thrust curves based on operational data
 postprocessing.plot_power_thrust_curves(operational_data)
 
@@ -77,10 +108,20 @@ power_curve, thrust_curve, omega, pitch = bem_solver.compute_power_thrust_curve(
 # Plot the computed power and thrust curves
 postprocessing.plot_bem_power_thrust_curves(
     WIND_SPEEDS, power_curve, thrust_curve)
+
+"""
+EXTRA FUNCTION n.1: Plot the optimal pitch angle and rotational speed curves
+"""
+
 postprocessing.plot_pitch_rot_speed(WIND_SPEEDS, pitch, omega)
 
 wind_speed = 10.0
 pitch, rpm, _ = bem_solver.get_optimal_operational_values(wind_speed)
+
+"""
+EXTRA FUNCTION n.2: Compute spanwise normal and tangential loads 
+EXTRA FUNCTION n.3: Plot spanwise normal and tangential loads
+"""
 
 # Compute and plot spanwise normal and tangential loads
 spanwise_data = bem_solver.compute_spanwise_normal_tangential_loads(
