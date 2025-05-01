@@ -97,7 +97,7 @@ def test_get_optimal_operational_values():
     )
 
     # Compute the optimal values
-    optimal_pitch, optimal_rot_speed = bem.get_optimal_operational_values(
+    optimal_pitch, optimal_rot_speed, _ = bem.get_optimal_operational_values(
         wind_speed
     )
 
@@ -120,3 +120,36 @@ def test_get_rated_wind_speed():
 
     # Assert the result is close to the expected value
     assert np.isclose(rated_ws, rated_ws_exp, rtol=1e-3)
+
+
+def test_compute_induction_valid_output():
+    """
+    Tests that the function returns two floats in the expected range
+    """
+    a, a_prime = bem.compute_induction(
+        r=10.0, wind_speed=8.0, pitch_angle=5.0,
+        omega=15.0 * 2 * np.pi / 60,
+        chord=3.0, twist=np.radians(2), airfoil_id="00"
+    )
+    assert 0 <= a <= 1
+    assert 0 <= a_prime <= 1
+
+
+def test_solve_bem_output_shape():
+    """
+    Tests solve_bem returns a list of length 5
+    """
+    result = bem.solve_bem(8.0, 5.0, 15.0)
+    assert len(result) == 5
+    for val in result[:3]:  # thrust, torque, power
+        assert val >= 0
+
+
+def test_compute_spanwise_loads_output_structure():
+    """
+    Tests that compute_spanwise_loads returns a dictionary 
+    with the expected keys
+    """
+    result = bem.compute_spanwise_normal_tangential_loads(8.0, 5.0, 15.0)
+    assert set(result.keys()) == {"r", "Fn", "Ft"}
+    assert result["r"].shape == result["Fn"].shape == result["Ft"].shape

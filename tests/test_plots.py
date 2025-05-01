@@ -53,7 +53,9 @@ def test_plot_all_airfoils():
 
 def test_plot_power_thrust_curves():
     """
-    Test the plot_power_thrust_curves function with sample operational data.
+    Test the plot_power_thrust_curves function
+    to ensure it runs with no errors
+    with sample operational data.
     """
     operational_data = {
         "wind_speed_ms": np.array([3, 5, 8, 12, 15, 20]),
@@ -65,3 +67,44 @@ def test_plot_power_thrust_curves():
 
     pp.plot_power_thrust_curves(operational_data)
     # If no exception is raised, the test passes.
+
+
+def test_plot_spanwise_normal_tangential_loads():
+    """
+    Test the plot_spanwise_normal_tangential_loads function
+     with sample data.
+     """
+    data = {
+        "r": np.linspace(0, 50, 100),
+        "Fn": np.linspace(1000, 2000, 100),
+        "Ft": np.linspace(500, 1000, 100),
+    }
+    pp.plot_spanwise_normal_tangential_loads(data)
+    plt.close()
+
+
+def test_plot_pitch_rot_speed():
+    """
+    Test that the plot_pitch_rot_speed function
+    runs without crashing and produces expected plot
+    with sample data.
+    """
+    wind_speeds = np.linspace(4, 25, 50)
+    pitch_vals = np.linspace(0, 20, 50)
+    rpm_vals = np.linspace(10, 100, 50)
+
+    pp.plot_pitch_rot_speed(wind_speeds, pitch_vals, rpm_vals)
+    plt.close()
+
+
+def test_plot_bem_power_thrust_curves():
+    """
+    Test that the plot_bem_power_thrust_curves function 
+    execute without errors with sample data.
+    """
+    wind_speeds = np.linspace(4, 25, 50)
+    power_curve = np.random.uniform(1e4, 1e6, 50)
+    thrust_curve = np.random.uniform(1e3, 1e5, 50)
+
+    pp.plot_bem_power_thrust_curves(wind_speeds, power_curve, thrust_curve)
+    plt.close()
