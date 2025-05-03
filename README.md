@@ -93,15 +93,15 @@ The project consists of the following core components:
 ### **Helper Functions**
 - **`__init__.py`**: Recalls the following files:
     - **`load_file.py`**:
-      ### classes for Data Loading:
+      ### Classes for Data Loading:
       - BladeGeometryLoader: loads the blade geometry data.
       - AirfoilDataLoader: loads the airfoil data. 
       - OperationalDataLoader: loads the operational data. 
     -**`solve_bem.py`**:
-      ### class for Simulation:
+      ### Class for Simulation:
       - BEMSolver: this class computes the rotational speed as well as the thrust, torque, power, lift and drag coefficients.
-    -**`postprocessing.py`**:
-      -Results Processing & Visualization through plots
+-**`postprocessing.py`**:
+  - Results Processing & Visualization through plots
 
 ## Architecture
 

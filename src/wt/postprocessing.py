@@ -30,7 +30,7 @@ def plot_airfoil_shape(
         linewidth=2,
     )
 
-
+# Functional requirement 2
 def plot_all_airfoils(airfoil_data):
     """
     Plot the shapes of all airfoils on a single figure.
@@ -64,7 +64,7 @@ def plot_all_airfoils(airfoil_data):
     plt.tight_layout()
     plt.show()
 
-
+# Functional requirement 7 - plot
 def plot_power_thrust_curves(operational_data):
     """
     Plot power and thrust curves based on operational data.

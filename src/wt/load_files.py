@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 # pylint: disable=C0103
 
-
+# Functional requirement 1
 class BladeGeometryLoader:
     """
     A class to load and process blade geometry data from a file.

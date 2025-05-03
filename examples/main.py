@@ -39,12 +39,33 @@ operational_data = operational_loader.load()
 """
     3.Compute lift coefficient (Cl) and drag coefficient (Cd) as function of span position (r) and angle of attack (α)
 """
+# Choose a representative span position (e.g., mid-span) and angle of attack
+r_span = blade_data['BlSpn'][len(blade_data['BlSpn']) // 2]  # Mid-span
+alpha_deg = 5.0  # Example angle of attack in degrees
+bem_solver = solve_bem.BEMSolver(blade_data, airfoil_data, operational_data)
+# Compute lift and drag coefficients at that position
+Cl, Cd = bem_solver.compute_aero_coeff(r_span, alpha_deg)
+print(f"At r = {r_span:.2f} m and alpha = {alpha_deg}° --> Cl = {Cl:.4f}, Cd = {Cd:.4f}")
 
 """
     4.Compute the axial (a) and tangential (a′) induction factors as function of span position (r),
     the inflow wind speed V0, the blade pitch angle (θp) and the rotational speed ω
 """
+# Define parameters
+ROT_SPEED_RPM  = 7.101976
+omega_rad_s = (ROT_SPEED_RPM * 2 * np.pi) / 60
+chord = blade_data['BlChord'][len(blade_data['BlChord']) // 2]
+twist_deg = blade_data['BlTwist'][len(blade_data['BlTwist']) // 2]
+twist_rad = np.radians(twist_deg)
+airfoil_id = str(int(blade_data['BlAFID'][len(blade_data['BlAFID']) // 2]) - 1).zfill(2)
+WIND_SPEED = 10.000000 # [m/s]
+PITCH_ANGLE = 0.000535 # [deg]
 
+# Compute induction factors
+a, a_prime = bem_solver.compute_induction(
+    r_span, WIND_SPEED, PITCH_ANGLE, omega_rad_s, chord, twist_rad, airfoil_id
+)
+print(f"At r = {r_span:.2f} m --> a = {a:.4f}, a' = {a_prime:.4f}")
 """
     5.Compute the thrust (T), torque (M), and power (P) of the rotor as function of the inflow wind speed V0 ,
     the blade pitch angle (θp) and the rotational speed ω
@@ -96,7 +117,7 @@ print(f"Power Coefficient (CP): {CP:.4f}")
     based on the optimal operational strategy obtained in the previous function.
 """
 
-# Plot power and thrust curves based on operational data
+# Plot power and thrust curves from operational data file
 postprocessing.plot_power_thrust_curves(operational_data)
 
 # Generate a range of wind speeds for power and thrust curve calculations
