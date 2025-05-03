@@ -48,7 +48,8 @@ class BEMSolver:
         """
         omega = (rot_speed_rpm * 2 * np.pi) / 60
         return omega * self.R / wind_speed
-
+    
+    # Functional requirement 3
     def compute_aero_coeff(self, r, alpha):
         """
         Compute lift and drag coefficients for a given span position and angle
@@ -70,6 +71,7 @@ class BEMSolver:
         cd = np.interp(alpha, alpha_data, cd_data)
         return cl, cd
 
+    # Functional requirement 4
     def compute_induction(self, r, wind_speed, pitch_angle,
                           omega, chord, twist, airfoil_id):
         """
@@ -108,6 +110,7 @@ class BEMSolver:
 
         return a_new, a_prime_new
 
+    # Functional requirement 5
     def solve_bem(self, wind_speed, pitch_angle, rot_speed_rpm,
                   target_power_kw=None):
         """
@@ -153,6 +156,7 @@ class BEMSolver:
 
         return thrust, torque, power, ct, cp
 
+    # Functional requirement 6
     def get_optimal_operational_values(self, wind_speed):
         """
         Get optimal pitch angle and rotational speed for a given wind speed.
@@ -205,6 +209,7 @@ class BEMSolver:
                                max_rot_speed)[0][0]
         return self.operational_data['wind_speed_ms'][rated_index]
 
+    # Functional requirement 7 - plot are in postprocessing
     def compute_power_thrust_curve(self, wind_speeds):
         """
         Compute power and thrust curves for a range of wind speeds.
