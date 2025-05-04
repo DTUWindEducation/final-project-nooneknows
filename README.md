@@ -20,7 +20,8 @@ The code performs the following key tasks:
 - Computes the thrust torque and power.
 - Computes optimal operational strategy.
 - Computes power and thrust.
-- Compute spanwise loads (tangential and normal)
+- Computes spanwise loads (tangential and normal).
+- Computes optimal pitch angle and rotational speed curves.
 - Generates plots.
 
 ## Quick-start guide
@@ -100,11 +101,11 @@ The project consists of the following core components:
 ### **`solve_bem.py`** - Class for Simulation:
       - BEMSolver: this class computes the rotational speed as well as the thrust, torque, power, lift and drag coefficients.
 ### **`postprocessing.py`** - Plots
-      - Results Processing & Visualization through plots
+      - Results Processing and Visualization through plots.
 
 ## Architecture
 
-The package takes the blade geometry data, the airfoil data and the operational data through three different classes and uses them in the BEMsolver class contained in the solve_bem script. In the postprocessing folder the plotting function are defined and all the scripts can be run through main.py by recalling the package wt.
+The package takes the blade geometry data, the airfoil data and the operational data through three different classes and uses them in the BEMsolver class contained in the solve_bem script. In the postprocessing folder, the plotting functions are defined and all the scripts can be run through main.py by recalling the package wt.
 
 ![alt text](inputs/Diagram.png)
 
@@ -114,6 +115,6 @@ The diagram source file can be found [here](inputs/project_structure.drawio).
 
 For this project, everybody tried to understand and begin to approach the code alone. This to have a deep understanding of the problem and a structured idea on how to solve it. 
 Every Tuesday morning and Thursday after class we have implemented the code for the files contained in our package wt, by following the project structure and guidelines.After ensuring that the package was working correctly, we have created main.py to be able to see the results and plots.
-Then, three tests for each file contained in the wt package have been created and tested, to be sure they were correct.
+Then, three tests for each file contained in the wt package have been created and verified, to be sure they were correct.
 Lastly, Pylint guidelines have been applied to the codes and this README file has been created.
-This group workflow can be clearly seen in the pull request history, which has been frequently updated by different team member in agreement with the others. 
+This group workflow can be clearly seen in the pull request history, which has been frequently updated by a different team member in agreement with the others. 
